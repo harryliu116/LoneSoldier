@@ -127,8 +127,8 @@ def intro():
 class Player(pygame.sprite.Sprite):
     def __init__(self, num, color, controls):
         super().__init__()
-        self.og_image = pygame.image.load("Millennium_Falcon.png")
-        self.og_image = pygame.transform.scale(self.og_image, (80, 80))
+        self.og_image = pygame.image.load("player.png")
+        self.og_image = pygame.transform.scale(self.og_image, (70, 70))
         self.image = self.og_image.copy()
         self.rect = self.image.get_rect(center=(screen_width / 2, screen_height / 2))
         self.num = num
@@ -195,9 +195,9 @@ class Player(pygame.sprite.Sprite):
 
         if dx < 0:
             self.image = pygame.transform.flip(self.og_image, False, True)
-            self.image = pygame.transform.rotate(self.image, angle)
+            self.image = pygame.transform.rotate(self.image, angle + 90)
         else:
-            self.image = pygame.transform.rotate(self.og_image, angle)
+            self.image = pygame.transform.rotate(self.og_image, angle- 90)
 
         self.rect = self.image.get_rect(center=self.rect.center)
 
@@ -242,7 +242,7 @@ class Enemy(pygame.sprite.Sprite):
 
     def __init__(self, x, y):
         super().__init__()
-        self.image = pygame.image.load("tie.png")
+        self.image = pygame.image.load("enemy.png")
         self.image = pygame.transform.scale(self.image, (70, 70))
         self.rect = self.image.get_rect(topleft=(x, y))
         self.health = 80
@@ -436,17 +436,6 @@ class Final(pygame.sprite.Sprite):
 
 
 
-class Heart(pygame.sprite.Sprite):
-
-    def __init__(self, x, y):
-        super().__init__()
-        self.image = pygame.image.load("heart.png")
-        self.image = pygame.transform.scale(self.image, (30, 30))
-        self.rect = self.image.get_rect(topleft=(x, y))
-        self.health = 10
-        self.total_health = 10
-
-
 class Text():
 
     def __init__(self, surface, text, size, color, x, y):
@@ -621,7 +610,7 @@ player1 = Player(1, GREEN, [pygame.K_w, pygame.K_s, pygame.K_a, pygame.K_d])
 player_group = pygame.sprite.Group(player1)
 enemy_group = pygame.sprite.Group()
 enemy_bullets = pygame.sprite.Group()
-heart_group = pygame.sprite.Group()
+
 explosion_group = pygame.sprite.Group()
 
 
@@ -632,7 +621,7 @@ def main():
     running = True
     final_boss_spawned = False
     phase = 1
-    intro()
+    #intro()
 
 
     while running:
@@ -678,7 +667,6 @@ def main():
         player_group.update()
         enemy_group.update()
         enemy_bullets.update()
-        heart_group.update()
 
         # Collision detection
         for player in player_group:
@@ -689,9 +677,6 @@ def main():
                     bullet.kill()
                     e.health -= 20
                     if e.health == 0:
-                        if random.randint(1, 10) == 1:
-                            heart = Heart(e.rect.centerx, e.rect.centery)
-                            heart_group.add(heart)
                         ex = Explosion(e.rect.centerx, e.rect.centery)
                         explosion_group.add(ex)
                         e.kill()
@@ -705,10 +690,6 @@ def main():
                 ex = Explosion(e.rect.centerx, e.rect.centery)
                 explosion_group.add(ex)
 
-            collide_heart = pygame.sprite.spritecollide(player, heart_group, True,
-                                                        pygame.sprite.collide_mask)
-            if collide_heart:
-                player1.health = min(player1.health + 80, PLAYER_HEALTH)
 
             # Check for collision with enemy bullets
             bullet_hit_player = pygame.sprite.spritecollide(player, enemy_bullets, True, pygame.sprite.collide_mask)
@@ -721,7 +702,7 @@ def main():
                 player1.rect.center = (screen_width / 2, screen_height / 2)
                 enemy_group.empty()
                 explosion_group.empty()
-                heart_group.empty()
+
                 enemy_bullets.empty()
                 player1.score = 0
 
@@ -732,7 +713,6 @@ def main():
                 player1.rect.center = (screen_width / 2, screen_height / 2)
                 enemy_group.empty()
                 explosion_group.empty()
-                heart_group.empty()
                 enemy_bullets.empty()
                 player1.score = 0
                 win()
@@ -741,7 +721,6 @@ def main():
         # Draw everything
         screen.fill(BLACK)
         screen.blit(bg, (0, 0))
-        heart_group.draw(screen)
         player_group.draw(screen)
         enemy_group.draw(screen)
         enemy_bullets.draw(screen)
